@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 from app.models.player import Player
 from fastapi import HTTPException
 
@@ -16,3 +16,6 @@ def get_player(player_id: str) -> Player:
     if not player:
         raise HTTPException(status_code=404, detail="Player not found")
     return player
+
+def get_all_players() -> List[Player]:
+    return list(players_db.values())

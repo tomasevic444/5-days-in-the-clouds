@@ -4,9 +4,15 @@ from app.models.player import Player
 from app.models.team import Team
 from app.services.team_service import get_team_by_id
 from fastapi import HTTPException
+from tinydb import TinyDB, Query
+from tinydb.storages import MemoryStorage  # Using in-memory storage for TinyDB
 
-# Simulated in-memory database
-matches_db: Dict[str, Match] = {}
+# Initialize TinyDB in-memory database
+db = TinyDB(storage=MemoryStorage)
+matches_table = db.table("matches")
+teams_table = db.table("teams")  # Assuming teams are stored here as well
+PlayerQuery = Query()
+TeamQuery = Query()
 
 def create_match(match: Match):
     if match.duration < 1:
@@ -42,7 +48,8 @@ def create_match(match: Match):
         update_team_stats(team1, team2, S=0.5, duration=match.duration)
         update_team_stats(team2, team1, S=0.5, duration=match.duration)
 
-    matches_db[match.id] = match
+    # Store the match in the matches table of TinyDB
+    matches_table.insert(match.dict())  # Save match data in the database
     return match
 
 def update_team_stats(team, opponent_team, S, duration):
@@ -72,3 +79,10 @@ def update_team_stats(team, opponent_team, S, duration):
             player.wins += 1
         elif S == 0:
             player.losses += 1
+
+# Retrieve a match by its ID from TinyDB
+def get_match_by_id(match_id: str) -> Match:
+    match_data = matches_table.get(Query().id == match_id)
+    if not match_data:
+        raise HTTPException(status_code=404, detail="Match not found")
+    return Match(**match_data)

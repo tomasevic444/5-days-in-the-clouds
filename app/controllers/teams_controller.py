@@ -4,7 +4,7 @@ from app.models.team import Team
 
 router = APIRouter()
 
-@router.post("/", response_model=Team)
+@router.post("", response_model=Team)
 def create_team_endpoint(team_data: dict):
     try:
         team = create_team(team_data["teamName"], team_data["players"])

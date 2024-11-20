@@ -13,6 +13,6 @@ def create_new_player(player: Player):
 def get_player_by_id(player_id: str):
     return get_player(player_id)
 
-@router.get("/", response_model=List[Player])  
+@router.get("", response_model=List[Player])  
 def get_all_players_endpoint():
     return get_all_players()

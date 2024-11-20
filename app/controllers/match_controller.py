@@ -4,7 +4,7 @@ from app.services.match_service import create_match, get_match_by_id
 
 router = APIRouter()
 
-@router.post("/", response_model=Match)
+@router.post("", response_model=Match)
 def create_new_match(match: Match):
     return create_match(match)
 

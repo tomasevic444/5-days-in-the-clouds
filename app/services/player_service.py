@@ -15,9 +15,8 @@ def create_player(player: Player) -> Player:
         raise HTTPException(status_code=400, detail="Nickname already exists")
 
     # Insert player into the database
-    player_dict = player.dict()
-    players_table.insert(player_dict)
-    return player
+    players_table.insert(player.model_dump())  
+    return player 
 
 def get_player(player_id: str) -> Player:
     # Fetch player by ID
@@ -28,4 +27,16 @@ def get_player(player_id: str) -> Player:
 
 def get_all_players() -> list[Player]:
     # Fetch all players
-    return [Player(**record) for record in players_table.all()]
+    records = players_table.all()
+    if not records:
+        raise HTTPException(status_code=404, detail="No players found")
+    
+    return [Player(**record) for record in records]
+
+def update_player_in_db(player: Player):
+    from app.services.team_service import update_team_in_db
+    players_table.update(player.model_dump(), PlayerQuery.id == player.id)
+    
+    # Synchronize with the team if the player is part of one
+    if player.team:
+        update_team_in_db(player.team, player)

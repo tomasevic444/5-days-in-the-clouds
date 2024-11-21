@@ -22,8 +22,10 @@ def create_match(match: Match) -> Match:
     team1 = get_team_by_id(match.team1Id)
     team2 = get_team_by_id(match.team2Id)
 
-    if not team1 or not team2:
-        raise HTTPException(status_code=404, detail="One or both teams not found")
+    if not team1:
+        raise HTTPException(status_code=404, detail=f"Team1 with ID {match.team1Id} not found")
+    if not team2:
+        raise HTTPException(status_code=404, detail=f"Team2 with ID {match.team2Id} not found")
 
     # Add match duration to players' hoursPlayed
     for player in team1.players + team2.players:

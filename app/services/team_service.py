@@ -39,7 +39,7 @@ def create_team(team_name: str, player_ids: List[str]) -> Team:
     for player in players:
         player.team = team.id  # Assign the team ID to the `team` attribute
         # Update player in the player database with new team assignment
-        player_dict = player.dict()
+        player_dict = player.model_dump()
         players_table.update(player_dict, PlayerQuery.id == player.id)
 
     return team

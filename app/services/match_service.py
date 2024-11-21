@@ -11,10 +11,7 @@ from tinydb.storages import MemoryStorage  # Using in-memory storage for TinyDB
 # Initialize in-memory database
 db = TinyDB(storage=MemoryStorage)
 matches_table = db.table("matches")
-teams_table = db.table("teams")
-players_table = db.table("players")
-TeamQuery = Query()
-PlayerQuery = Query()
+
 
 def create_match(match: Match) -> Match:
     # Validate duration
@@ -59,7 +56,7 @@ def update_team_stats(team: Team, opponent_team: Team, S: float, duration: int):
 
     for player in team.players:
         # Calculate expected score (E)
-        E = 1 / (1 + 10 ** ((opponent_elo - player.elo) / 400))
+        E = 1 / (1 + 10 ** (round((opponent_elo - player.elo) / 400)))
 
         # Determine K-factor (rating adjustment based on hours played)
         if player.hoursPlayed < 500:
@@ -74,7 +71,7 @@ def update_team_stats(team: Team, opponent_team: Team, S: float, duration: int):
             K = 10
 
         # Update Elo
-        player.elo += K * (S - E)
+        player.elo += round(K * (S - E))
 
         # Update wins/losses
         if S == 1:
@@ -85,9 +82,3 @@ def update_team_stats(team: Team, opponent_team: Team, S: float, duration: int):
         # Save updated player to the database
         update_player_in_db(player)
 
-# Retrieve a match by its ID from TinyDB
-def get_match_by_id(match_id: str) -> Match:
-    match_data = matches_table.get(Query().id == match_id)
-    if not match_data:
-        raise HTTPException(status_code=404, detail="Match not found")
-    return Match(**match_data)
